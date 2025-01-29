@@ -6,12 +6,48 @@ const App = () => {
   const [move, setMove] = React.useState(false);
   const [move1, setMove1] = React.useState(false);
   const parentRef = useRef(null);
+  const parentRRef = useRef(null);
   const childRef = useRef(null);
   const [isMoving, setIsMoving] = useState(false);
+  const [isDoubleMoving, setIsDoubleMoving] = useState(false);
   const [rotate, setRotate] = React.useState(false);
+  const [moveState, setMoveState] = useState(0);
+  const [isSwapped, setIsSwapped] = useState(false);
   const toggleMovement = () => {
     setIsMoving(!isMoving);
   };
+  const moveSquares = () => {
+    setMoveState((prev) => (prev + 1) % 4);  // Cycle through 4 states
+  };
+  const positions = [
+    { x: 0, y: 300 },  // Down
+    { x: -300, y: 300 }, // Left
+    { x: -300, y: 0 }, // Up
+    { x: 0, y: 0 },  // Right (back to start)
+  ];
+  const positions2 = [
+    { x: 0, y: -134 },  // First square moves up, second moves down
+    { x: 134, y: -134 },  // First square moves right, second moves down
+    { x: 134, y: 0 },  // First square moves right, second moves up
+    { x: 0, y: 0 },  // Reset to original positions
+  ];
+  const [positions3, setPositions3] = useState({
+    firstCircle: { x: 0, y: 0 },  // Initial position of first circle
+    secondCircle: { x: 300, y: 300 },  // Initial position of second circle
+  });
+  const toggleDoubleMovement = () => {
+    setIsDoubleMoving(!isDoubleMoving);
+  };
+  const colorArray = ["#D9D9D9", "#848482", "#C0C0C0", "#072C4D", "#0E4A7E", "#257E95"];
+  const [colorIndex, setColorIndex] = useState(0); 
+  const swapClick = () => {
+    // Swap the positions of the circles
+    setPositions3((prevPositions) => ({
+      firstCircle: prevPositions.secondCircle,
+      secondCircle: prevPositions.firstCircle,
+    }));
+  };
+
   const swapColor = () => {
     const parentColor = parentRef.current.style.backgroundColor;
     const childColor = childRef.current.style.backgroundColor;
@@ -20,7 +56,21 @@ const App = () => {
     parentRef.current.style.backgroundColor = childColor;
     childRef.current.style.backgroundColor = parentColor;
   };
+
+
+  const rotateColor = () => {
+    // Get the current border color
+    const currentColor = parentRRef.current.style.backgroundColor;
+    
+    // Find the next color in the array
+    const nextColorIndex = (colorIndex + 1) % colorArray.length;
+    setColorIndex(nextColorIndex);  // Update the color index state
+
+    // Set the border color to the next color in the array
+    parentRRef.current.style.backgroundColor = colorArray[nextColorIndex];
+  };
   const [roll, setRoll] = useState(false);
+  const [index, setIndex] = useState(0);
 
   const addDiv = (classes, parentId) => {
     console.log('Adding div to:', parentId);
@@ -34,7 +84,7 @@ const App = () => {
 
   return (
     <main>
-    <div id="content" className="dark-navy">
+    <div id="content" className="dark-navy" ref={parentRRef}>
        <div id="grid">
             <div id="box1" className="box navy">
                 <motion.div className="circle dark-navy left top"
@@ -170,32 +220,94 @@ const App = () => {
                 onClick={() => setRoll(!roll)}></motion.div>
             </div>
             <div id="box14" className="box light-brown">
-                <div className="rectangle right slight-down light-blue"></div>
-                <div className="rectangle left slight-up blue"></div>
+                <motion.div className="rectangle right slight-down light-blue"
+                  onClick={toggleDoubleMovement}
+                  animate={{
+                    y: isDoubleMoving ? [0,200, 0] : [0, 0], // up-and-down vertical movement
+                  }}
+                  transition={{
+                    duration: 1,         
+                    repeat: Infinity,    
+                    repeatType: 'reverse',  
+                    ease: 'easeInOut',   
+                  }}></motion.div>
+                <motion.div className="rectangle left slight-up blue"
+                  onClick={toggleDoubleMovement}
+                    animate={{
+                      y: isDoubleMoving ? [200, 0, 200,] : [0, 0], // up-and-down vertical movement
+                    }}
+                    transition={{
+                      duration: 1,         
+                      repeat: Infinity,    
+                      repeatType: 'reverse',  
+                      ease: 'easeInOut',   
+                    }}></motion.div>
             </div>
-            <div id="box15" className="box blue">
-                <div className="hst navy fliph small top right"></div>
-                <div className="hst navy fliph small bottom right"></div>
-                <div className="hst navy small top left"></div>
-                <div className="hst navy small bottom left"></div>
-            </div>
+            <div id="box15" className="box navy" style={{ overflow: "visible", position: "relative" }}>
+                <motion.div
+                  whileTap={{ y: "100%" }}  // Moves by 100% of #box15's height
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                  style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 1000 }}
+                >
+                  <div className="hst blue fliph small top right"></div>
+                  <div className="hst blue fliph small bottom right"></div>
+                  <div className="hst blue small top left"></div>
+                  <div className="hst blue small bottom left"></div>
+                </motion.div>
+              </div>
             <div id="box16" className="box dark-navy">
                 <div className="hst navy fliph"></div>
-                <div className="hst light-blue fliph small bottom left"></div>
+                <motion.div className="hst light-blue fliph small bottom left"
+                initial={{ scaleX: -1 }}
+                  whileHover={{
+                    x: [0, 150, 0],  // Moves right then back left
+                    y: [0, -150, 0], // Moves up then back down
+                  }}
+                  transition={{
+                    duration: 1,    // Smooth movement time
+                    ease: "easeInOut",
+                    repeat: Infinity, // Keeps looping
+                    repeatType: "reverse", // Reverses each time
+                  }}
+                ></motion.div>
             </div>
             <div id="box17" className="box brown">
-                <div className="circle light-brown top right"></div>
+                <motion.div className="circle light-brown top right"
+                  animate={positions[index]}  // Moves to the next position
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                  onClick={() => setIndex((prev) => (prev + 1) % positions.length)}
+                ></motion.div>
             </div>
-            <div id="box18" className="box white">
-                <div className="square top small light-brown"></div>
-                <div className="square bottom right small light-brown"></div>
+            <div id="box18" className="box brown">
+                <motion.div className="square bottom left small white"
+                onClick={moveSquares}
+                animate={{ x: positions2[moveState].x, y: positions2[moveState].y }}  // First square
+                transition={{ duration: 0.5, ease: "easeInOut" }}></motion.div>
+
+                <motion.div className="square top right small white"
+                onClick={moveSquares}
+                animate={{ x: -positions2[moveState].x, y: -positions2[moveState].y }}  // Second square
+                transition={{ duration: 0.5, ease: "easeInOut" }}></motion.div>
             </div>
-            <div id="box19" className="box navy">
+            <div id="box19" className="box navy" onClick={rotateColor}>
 
             </div>
-            <div id="box20" className="box blue">
-                <div className="circle light-blue left top"></div>
-                <div className="circle light-blue bottom right"></div>
+            <div id="box20" className="box blue" onClick={swapClick}>
+                <motion.div className="circle light-blue left top"
+                    animate={{
+                      x: positions3.firstCircle.x,  // x position of the first circle
+                      y: positions3.firstCircle.y,  // y position of the first circle
+                    }}
+                    transition={{ duration: 0.5, ease: "easeInOut" }}>
+                </motion.div>
+                <motion.div className="circle navy bottom right"
+                    animate={{
+                      x: positions3.secondCircle.x,  // x position of the second circle
+                      y: positions3.secondCircle.y,  // y position of the second circle
+                    }}
+                    transition={{ duration: 0.5, ease: "easeInOut" }}
+                  >
+                </motion.div>
             </div>
        </div>
     </div>
