@@ -4,9 +4,11 @@ import {motion} from 'framer-motion';
 
 const App = () => {
   const [move, setMove] = React.useState(false);
+  const [move1, setMove1] = React.useState(false);
   const parentRef = useRef(null);
   const childRef = useRef(null);
   const [isMoving, setIsMoving] = useState(false);
+  const [rotate, setRotate] = React.useState(false);
   const toggleMovement = () => {
     setIsMoving(!isMoving);
   };
@@ -18,6 +20,7 @@ const App = () => {
     parentRef.current.style.backgroundColor = childColor;
     childRef.current.style.backgroundColor = parentColor;
   };
+  const [roll, setRoll] = useState(false);
 
   const addDiv = (classes, parentId) => {
     console.log('Adding div to:', parentId);
@@ -54,7 +57,7 @@ const App = () => {
                     whileHover={{
                       rotate: 180,
                     }}
-                    transition={{ duration: 0 }}
+                    transition={{ duration: .5 }}
                   ></motion.div>
                 </div>  
             </div>
@@ -96,23 +99,40 @@ const App = () => {
             <div id="box6" className="box blue">
                 <div className="light-blue rectangle left" onClick={() => addDiv(['light-blue', 'rectangle', 'left'], 'box2')}></div>
             </div>
-            <div id="box7" className="box brown">
+            <div id="box7" className="box brown" style={{overflow: 'visible'}}>
               <motion.div 
               whileHover={{ skewX: 10, skewY: 10 }} transition={{ duration: 1 }}>
-                <div className="square top right light-brown"></div>
-                <div className="square bottom left blue"></div> 
+                <div className="square small top right light-brown"></div>
+                <div className="square small bottom left blue"></div> 
               </motion.div>
                 
             </div>
             <div id="box8" className="box brown">
                 <motion.div className="light-brown rectangle left" drag="x" dragConstraints={{ left: 0, right: 300 }}></motion.div>
             </div>    
-            <div id="box9" className="box light-blue">
-                <div className="circle small blue centered"></div>
+            <div id="box9" className="box light-blue" style={{overflow: 'visible'}}>
+                <motion.div className="circle small blue centered" style={{ zIndex: 1000 }}
+                onClick={() => setMove1(!move1)} 
+                initial={{ x: 0, y: 0 }}
+                animate={{
+                  x: move1 ? "-50%" : 0, 
+                  y: move1 ? "150%" : 0,   
+                }}
+                transition={{
+                  stiffness: 200,
+                  damping: 30,
+                  mass: 10,
+                  duration: 5,
+                  x: { delay: 0 },        
+                  y: { delay: 1 },      
+                }}></motion.div>
             </div>
             <div id="box10" className="box navy">
-                <div className="light-blue rectangle right"></div>
-                <div className="circle small white centered"></div>
+                <motion.div className="light-blue rectangle right" style={{transformOrigin: 'center left'}}
+                  animate={{rotate: rotate? -360 : 0}}
+                  transition={{duration: 2}}>
+                </motion.div>
+                <div className="circle small white centered" onClick={() => setRotate(!rotate)}></div>
 
             </div>
             <div id="box11" className="box dark-navy" onClick={() => setMove(!move)}>
@@ -125,10 +145,29 @@ const App = () => {
               ></motion.div>
             </div>
             <div id="box12" className="box white">
-                <div className="hst light-grey"></div>
+                <motion.div className="hst light-grey"
+                initial={{
+                  x: 0,
+                  y: 0
+                }}
+                whileHover={{
+                  x: "50%", 
+                  y: "-50%",   
+                }}
+                transition={{duration: .5}}></motion.div>
             </div>
-            <div id="box13" className="box dark-blue">
-                <div className="square top small light-blue"></div>
+            <div id="box13" className="box dark-blue" onClick={() => setRoll(!roll)}>
+                <div className="square top small light-blue" ></div>
+                <motion.div className="square top right small dark-navy"
+                initial={{x: 0}}
+                animate={{
+                  x: roll ? '-50vw' : 0, // Move the element 100% of the viewport width to the right
+                  rotate: roll ? -360 : 0, // Rotate 360 degrees while moving
+                }}  
+                transition={{
+                  duration: 5,            // Duration of the animation
+                }}    
+                onClick={() => setRoll(!roll)}></motion.div>
             </div>
             <div id="box14" className="box light-brown">
                 <div className="rectangle right slight-down light-blue"></div>
