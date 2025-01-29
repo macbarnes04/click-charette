@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/click-charette/static/css/main.639e4922.css",
-    "main.js": "/click-charette/static/js/main.4dfa198e.js",
+    "main.js": "/click-charette/static/js/main.5eedd297.js",
     "static/js/488.1beb2284.chunk.js": "/click-charette/static/js/488.1beb2284.chunk.js",
     "index.html": "/click-charette/index.html",
     "main.639e4922.css.map": "/click-charette/static/css/main.639e4922.css.map",
-    "main.4dfa198e.js.map": "/click-charette/static/js/main.4dfa198e.js.map",
+    "main.5eedd297.js.map": "/click-charette/static/js/main.5eedd297.js.map",
     "488.1beb2284.chunk.js.map": "/click-charette/static/js/488.1beb2284.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.639e4922.css",
-    "static/js/main.4dfa198e.js"
+    "static/js/main.5eedd297.js"
   ]
 }
